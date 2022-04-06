@@ -140,7 +140,7 @@ def biliteralFilterDemo():
 def main():
     # conv1Demo()
     conv2Demo()
-    # derivDemo()
+    derivDemo()
     # blurDemo()
     # edgeDemo()
     # houghDemo()

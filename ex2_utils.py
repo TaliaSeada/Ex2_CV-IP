@@ -3,6 +3,9 @@ import numpy as np
 import cv2
 import math
 
+from matplotlib import pyplot as plt
+
+
 def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
     """
     Convolve a 1-D array with a given kernel
@@ -46,7 +49,6 @@ def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
     return np.array(res)
 
 
-
 def conv2D(in_image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     """
     Convolve a 2-D array with a given kernel
@@ -80,7 +82,7 @@ def calc(image, kernel, k, t):
     for i in range(r):
         for j in range(c):
             res += kernel[i][j] * image[k + i][t + j]
-    return round(res)
+    return np.round(res)
 
 
 def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
@@ -89,8 +91,20 @@ def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
     :param in_image: Grayscale iamge
     :return: (directions, magnitude)
     """
+    # v = np.array([[1, 0, -1]])
+    # row_conv = conv2D(in_image, v)
+    # col_conv = conv2D(in_image, v.T)
+    #
+    # dirG = np.arctan(col_conv, row_conv)
+    # magG = np.sqrt(np.power(row_conv, 2) + np.power(col_conv, 2))
 
-    pass
+    v = np.array([[1, 0, -1]])
+    X = cv2.filter2D(in_image, -1, v)
+    Y = cv2.filter2D(in_image, -1, v.T)
+
+    dirG = np.arctan2(Y, X).astype(np.float64)
+    magG = np.sqrt(X ** 2 + Y ** 2).astype(np.float64)
+    return dirG, magG
 
 
 def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
