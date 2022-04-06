@@ -125,8 +125,10 @@ def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :param k_size: Kernel size
     :return: The Blurred image
     """
-
-    pass
+    # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html?highlight=gaussianblur#Mat%20getGaussianKernel(int%20ksize,%20double%20sigma,%20int%20ktype)
+    k = cv2.getGaussianKernel(k_size, -1)
+    img = cv2.filter2D(in_image, -1, k, borderType=cv2.BORDER_REPLICATE)
+    return img
 
 
 def edgeDetectionZeroCrossingSimple(img: np.ndarray) -> np.ndarray:
@@ -174,8 +176,3 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     """
 
     pass
-
-if __name__ == '__main__':
-    in_si = np.array([1, 1])
-    k_size = np.array([1, 2, 3])
-    print(conv1D(in_si, k_size))
