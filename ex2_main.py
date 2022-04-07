@@ -44,8 +44,8 @@ def edgeDemo():
 
 
 def houghDemo():
-    img = cv2.imread('input/pool_balls.jpg', cv2.IMREAD_GRAYSCALE) / 255
-    min_r, max_r = 10, 20
+    # img = cv2.imread('input/pool_balls.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    # min_r, max_r = 10, 20
 
     img = cv2.imread('input/coins.jpg', cv2.IMREAD_GRAYSCALE) / 255
     min_r, max_r = 50, 100
@@ -78,7 +78,7 @@ def conv1Demo():
     signal = np.array([1, 2, 2, 1])
     kernel = np.array([1, 1])
 
-    sig_conv = conv1D(signal, kernel).astype(int)
+    sig_conv = conv1D(signal, kernel)
     print("Signal:\t{}".format(signal))
     print("Numpy:\t{}".format(np.convolve(signal, kernel, 'full')))
     print("Mine:\t{}".format(sig_conv))
@@ -141,10 +141,10 @@ def main():
     # conv1Demo()
     # conv2Demo()
     # derivDemo()
-    # blurDemo()
-    edgeDemo()
+    # blurDem'o()
+    # edgeDemo()
     # houghDemo()
-    # biliteralFilterDemo()
+    biliteralFilterDemo()
 
 
 if __name__ == '__main__':
