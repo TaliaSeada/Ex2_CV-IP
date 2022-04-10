@@ -44,8 +44,8 @@ def edgeDemo():
 
 
 def houghDemo():
-    # img = cv2.imread('input/pool_balls.jpg', cv2.IMREAD_GRAYSCALE) / 255
-    # min_r, max_r = 10, 20
+    img = cv2.imread('input/pool_balls.jpg', cv2.IMREAD_GRAYSCALE) / 255
+    min_r, max_r = 10, 20
 
     img = cv2.imread('input/coins.jpg', cv2.IMREAD_GRAYSCALE) / 255
     min_r, max_r = 50, 100
@@ -143,8 +143,8 @@ def main():
     # derivDemo()
     # blurDem'o()
     # edgeDemo()
-    # houghDemo()
-    biliteralFilterDemo()
+    houghDemo()
+    # biliteralFilterDemo()
 
 
 if __name__ == '__main__':

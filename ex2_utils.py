@@ -1,10 +1,6 @@
 import math
 import numpy as np
 import cv2
-import math
-
-from matplotlib import pyplot as plt
-from numpy import inexact
 
 
 def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
@@ -171,32 +167,46 @@ def houghCircle(img: np.ndarray, min_radius: float, max_radius: float) -> list:
     :return: A list containing the detected circles,
     [(x,y,radius),(x,y,radius),...]
     """
+    if max_radius - min_radius < 11:
+        jump = 1
+    elif max_radius - min_radius < 51:
+        jump = 3
+    else:
+        jump = 5
 
-    img = img.squeeze()
     rows = img.shape[0]
     cols = img.shape[1]
-    img_edges = cv2.Canny((img * 255).astype(np.uint8), img.shape[0], img.shape[1])
+
+    img = cv2.Canny((img * 255).astype(np.uint8), img.shape[0], img.shape[1])
+    radius = range(min_radius, max_radius)
     circles = []
-    for radius in range(min_radius, max_radius):
-        voting = np.zeros(img_edges.shape)
+    threshold = 20
+    for r in range(0, len(radius), jump):
+        print('radius: ', radius[r])
+        acc = np.zeros(img.shape)
+        # Make accumulator
         for i in range(rows):
             for j in range(cols):
-                if img_edges[i, j] == 255:
-                    for angel in range(360):
-                        a = int(j - np.cos(angel * np.pi / 180) * radius)
-                        b = int(i - np.sin(angel * np.pi / 180) * radius)
-                        if 0 <= a < cols and 0 <= b < rows:
-                            voting[b, a] += 1
-        if voting.max() > 150:
-            voting[voting < 150] = 0
+                if img[i, j] == 255:
+                    for angle in range(0, 360, 10):
+                        b = j - round(np.sin(angle * np.pi / 180) * radius[r])
+                        a = i - round(np.cos(angle * np.pi / 180) * radius[r])
+                        if 0 <= a < rows and 0 <= b < cols:
+                            acc[a, b] += 1
+
+        if acc.max() > threshold:
+            acc[acc < threshold] = 0
+            # find the circles for this radius
             for i in range(1, rows - 1):
                 for j in range(1, cols - 1):
-                    if voting[i, j] >= 150:
-                        avg_sum = voting[i - 1:i + 2, j - 1:j + 2].sum() / 9
-                        if avg_sum >= 150 / 9:
-                            if all((j - xc) * 2 + (i - yc) * 2 > rc ** 2 for xc, yc, rc in circles):
-                                circles.append((j, i, radius))
-                                voting[i - radius:i + radius, j - radius:j + radius] = 0
+                    if acc[i, j] >= threshold:
+                        avg_sum = acc[i - 1:i + 2, j - 1:j + 2].sum() / 9
+                        if avg_sum >= threshold / 9:
+                            # checking that the distance from every circle to the current circle
+                            # is more than the radius
+                            if all((i - xc) ** 2 + (j - yc) ** 2 > rc ** 2 for xc, yc, rc in circles):
+                                circles.append((j, i, radius[r]))
+                                acc[i - radius[r]:i + radius[r], j - radius[r]:j + radius[r]] = 0
     return circles
 
 
@@ -209,25 +219,24 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     :param sigma_space: represents the filter sigma in the coordinate.
     :return: OpenCV implementation, my implementation
     """
-    ans = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space)
-    imgbi = np.zeros_like(in_image)
+    cv_image = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space)
 
-    for y in range(k_size, in_image.shape[0] - k_size):
-        for x in range(k_size, in_image.shape[1] - k_size):
-            pivot_v = in_image[y, x]
-            neighbor_hood = in_image[
-                            y - k_size:y + k_size + 1,
-                            x - k_size:x + k_size + 1
-                            ]
-            sigma = sigma_color
-            up = []
-            for nei in neighbor_hood:
-                diff = abs(neighbor_hood.astype(int) - pivot_v)
-                diff_gau = np.exp(-(diff / (2 * sigma_color)))
-                gaus = cv2.getGaussianKernel(2 * k_size + 1, k_size)
-                gaus = gaus.dot(gaus.T)
-                combo = gaus * diff_gau
-                result = ((combo * neighbor_hood) / combo.sum()).mean()
-                imgbi[y, x] = result * 255
+    shape = in_image.shape
+    # padding
+    pad = math.floor(k_size / 2)
+    padded_image = cv2.copyMakeBorder(in_image, pad, pad, pad, pad, cv2.BORDER_REPLICATE, None, value=0)
+    res = np.zeros(shape)
 
-    return ans, imgbi
+    for x in range(shape[0]):
+        for y in range(shape[1]):
+            pivot_v = in_image[x, y]
+            neighbor_hood = padded_image[x:x + k_size, y:y + k_size]
+            diff = pivot_v - neighbor_hood
+            diff_gau = np.exp(-np.power(diff, 2) / (2 * sigma_color))
+            gaus = cv2.getGaussianKernel(k_size, k_size)
+            gaus = gaus.dot(gaus.T)
+            combo = gaus * diff_gau
+            result = (combo * neighbor_hood).sum() / combo.sum()
+            res[x][y] = result
+    return cv_image, res
+
