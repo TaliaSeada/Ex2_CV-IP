@@ -182,31 +182,39 @@ def houghCircle(img: np.ndarray, min_radius: float, max_radius: float) -> list:
     circles = []
     threshold = 20
     for r in range(0, len(radius), jump):
-        print('radius: ', radius[r])
-        acc = np.zeros(img.shape)
-        # Make accumulator
-        for i in range(rows):
-            for j in range(cols):
-                if img[i, j] == 255:
-                    for angle in range(0, 360, 10):
-                        b = j - round(np.sin(angle * np.pi / 180) * radius[r])
-                        a = i - round(np.cos(angle * np.pi / 180) * radius[r])
-                        if 0 <= a < rows and 0 <= b < cols:
-                            acc[a, b] += 1
-
-        if acc.max() > threshold:
-            acc[acc < threshold] = 0
+        voting = create(img, rows, cols, radius, r)
+        if voting.max() > threshold:
+            voting[voting < threshold] = 0
             # find the circles for this radius
-            for i in range(1, rows - 1):
-                for j in range(1, cols - 1):
-                    if acc[i, j] >= threshold:
-                        avg_sum = acc[i - 1:i + 2, j - 1:j + 2].sum() / 9
-                        if avg_sum >= threshold / 9:
-                            # checking that the distance from every circle to the current circle
-                            # is more than the radius
-                            if all((i - xc) ** 2 + (j - yc) ** 2 > rc ** 2 for xc, yc, rc in circles):
-                                circles.append((j, i, radius[r]))
-                                acc[i - radius[r]:i + radius[r], j - radius[r]:j + radius[r]] = 0
+            circles = find_circles(rows, cols, voting, threshold, circles, radius, r)
+    return circles
+
+
+def create(img, rows, cols, radius, r):
+    voting = np.zeros(img.shape)
+    # Make voting array
+    for i in range(rows):
+        for j in range(cols):
+            if img[i, j] == 255:
+                for angle in range(0, 360, 10):
+                    b = j - round(np.sin(angle * np.pi / 180) * radius[r])
+                    a = i - round(np.cos(angle * np.pi / 180) * radius[r])
+                    if 0 <= a < rows and 0 <= b < cols:
+                        voting[a, b] += 1
+    return voting
+
+
+def find_circles(rows, cols, voting, threshold, circles, radius, r):
+    for i in range(1, rows - 1):
+        for j in range(1, cols - 1):
+            if voting[i, j] >= threshold:
+                avg_sum = voting[i - 1:i + 2, j - 1:j + 2].sum() / 9
+                if avg_sum >= threshold / 9:
+                    # checking that the distance from every circle to the current circle
+                    # is more than the radius
+                    if all((i - xc) ** 2 + (j - yc) ** 2 > rc ** 2 for xc, yc, rc in circles):
+                        circles.append((j, i, radius[r]))
+                        voting[i - radius[r]:i + radius[r], j - radius[r]:j + radius[r]] = 0
     return circles
 
 
@@ -239,4 +247,3 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
             result = (combo * neighbor_hood).sum() / combo.sum()
             res[x][y] = result
     return cv_image, res
-
