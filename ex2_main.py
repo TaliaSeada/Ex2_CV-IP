@@ -19,6 +19,9 @@ def blurDemo():
 
     print("Blurring MSE:{:.6f}".format(np.sqrt(np.power(b1 - b2, 2).mean())))
     f, ax = plt.subplots(1, 3)
+    ax[0].set_title("Mine")
+    ax[1].set_title("Diff")
+    ax[2].set_title("OPENCV")
     ax[0].imshow(b1)
     ax[1].imshow(b1 - b2)
     ax[2].imshow(b2)
@@ -138,13 +141,13 @@ def biliteralFilterDemo():
 
 
 def main():
-    conv1Demo()
-    conv2Demo()
-    derivDemo()
-    # blurDemo()
-    edgeDemo()
-    houghDemo()
-    biliteralFilterDemo()
+    # conv1Demo()
+    # conv2Demo()
+    # derivDemo()
+    blurDemo()
+    # edgeDemo()
+    # houghDemo()
+    # biliteralFilterDemo()
 
 
 if __name__ == '__main__':

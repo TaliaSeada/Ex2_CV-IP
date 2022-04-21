@@ -95,8 +95,19 @@ def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :param k_size: Kernel size
     :return: The Blurred image
     """
+    # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html?highlight=gaussianblur#Mat%20getGaussianKernel(int%20ksize,%20double%20sigma,%20int%20ktype)
+    sigma = 0.3 * ((k_size - 1) * 0.5 - 1) + 0.8
 
-    pass
+    gauss_ker = []
+    for i in range(0, k_size - 1):
+        ex = np.exp(-(i-((k_size-1)/2)**2)/2*sigma**2)
+        gauss_ker.append(ex)
+
+    gauss_ker = np.array([gauss_ker])
+    gauss_ker = gauss_ker/gauss_ker.sum()
+
+    img = conv2D(in_image, gauss_ker)
+    return img
 
 
 def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
@@ -107,8 +118,8 @@ def blurImage2(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :return: The Blurred image
     """
     # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html?highlight=gaussianblur#Mat%20getGaussianKernel(int%20ksize,%20double%20sigma,%20int%20ktype)
-    k = cv2.getGaussianKernel(k_size, -1)
-    img = cv2.filter2D(in_image, -1, k, borderType=cv2.BORDER_REPLICATE)
+    gauss_ker = cv2.getGaussianKernel(k_size, -1)
+    img = cv2.filter2D(in_image, -1, gauss_ker, borderType=cv2.BORDER_REPLICATE)
     return img
 
 
