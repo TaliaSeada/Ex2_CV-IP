@@ -66,7 +66,7 @@ def calc(image, kernel, k, t):
     for i in range(r):
         for j in range(c):
             res += kernel[i][j] * image[k + i][t + j]
-    return np.round(res)
+    return res
 
 
 def convDerivative(in_image: np.ndarray) -> (np.ndarray, np.ndarray):
@@ -95,16 +95,15 @@ def blurImage1(in_image: np.ndarray, k_size: int) -> np.ndarray:
     :param k_size: Kernel size
     :return: The Blurred image
     """
-    # https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html?highlight=gaussianblur#Mat%20getGaussianKernel(int%20ksize,%20double%20sigma,%20int%20ktype)
-    sigma = 0.3 * ((k_size - 1) * 0.5 - 1) + 0.8
+    gauss_ker = np.zeros((k_size, k_size))
+    for x in range(k_size):
+        for y in range(k_size):
+            ex = np.exp(-(((x - (k_size//2))**2) + ((y - (k_size//2))**2))/2)
+            gauss_ker[x, y] = ex / 2 * math.pi
 
-    gauss_ker = []
-    for i in range(0, k_size - 1):
-        ex = np.exp(-(i-((k_size-1)/2)**2)/2*sigma**2)
-        gauss_ker.append(ex)
-
-    gauss_ker = np.array([gauss_ker])
+    gauss_ker = gauss_ker.flatten()
     gauss_ker = gauss_ker/gauss_ker.sum()
+    gauss_ker = np.reshape(gauss_ker, (k_size, k_size))
 
     img = conv2D(in_image, gauss_ker)
     return img
@@ -230,8 +229,8 @@ def create(img, rows, cols, radius, r):
         for j in range(cols):
             if img[i, j] == 255:
                 for angle in range(0, 360, 10):
-                    b = j - round(np.sin(angle * np.pi / 180) * radius[r])
-                    a = i - round(np.cos(angle * np.pi / 180) * radius[r])
+                    b = j - round(math.sin(angle * np.pi / 180) * radius[r])
+                    a = i - round(math.cos(angle * np.pi / 180) * radius[r])
                     if 0 <= a < rows and 0 <= b < cols:
                         voting[a, b] += 1
     return voting
