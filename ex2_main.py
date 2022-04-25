@@ -79,9 +79,12 @@ def houghDemo():
     for c in hough_rings:
         circle1 = plt.Circle((c[0], c[1]), c[2], color='r', fill=False, linewidth=3)
         ax.add_artist(circle1)
-    for c in cv2_cir[0]:
-        circle1 = plt.Circle((c[0], c[1]), c[2], color='g', fill=False, linewidth=2)
-        ax.add_artist(circle1)
+    try:
+        for c in cv2_cir[0]:
+            circle1 = plt.Circle((c[0], c[1]), c[2], color='g', fill=False, linewidth=2)
+            ax.add_artist(circle1)
+    except:
+        print('none')
     plt.show()
 
 
@@ -151,13 +154,16 @@ def biliteralFilterDemo():
     cv2.imwrite("filtered_image_my.jpg", filtered_image_my)
 
 
+
 def main():
+    print("MyID: 211551601")
     conv1Demo()
     conv2Demo()
     derivDemo()
     blurDemo()
     edgeDemo()
     houghDemo()
+    print("Best threshold found for the houghCircle function: 20")
     biliteralFilterDemo()
 
 
