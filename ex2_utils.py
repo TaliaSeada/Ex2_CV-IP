@@ -3,6 +3,14 @@ import numpy as np
 import cv2
 
 
+def myID() -> np.int:
+    """
+    Return my ID (not the friend's ID I copied from)
+    :return: int
+    """
+    return 211551601
+
+
 def conv1D(in_signal: np.ndarray, k_size: np.ndarray) -> np.ndarray:
     """
     Convolve a 1-D array with a given kernel
@@ -262,11 +270,11 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
     :return: OpenCV implementation, my implementation
     """
     # cv2 function
-    cv_image = cv2.bilateralFilter(in_image, k_size, sigma_color, sigma_space)
+    cv_image = cv2.bilateralFilter(in_image, k_size, sigma_space, sigma_color)
     shape = in_image.shape
     # padding
     pad = math.floor(k_size / 2)
-    padded_image = cv2.copyMakeBorder(in_image, pad, pad, pad, pad, cv2.BORDER_REPLICATE, None, value=0)
+    padded_image = cv2.copyMakeBorder(in_image, pad, pad, pad, pad, cv2.BORDER_REFLECT_101, None, value=0).astype(int)
     res = np.zeros(shape)
 
     # for each pixel activate the bilateral filter, then add the result to the new image
@@ -275,10 +283,11 @@ def bilateral_filter_implement(in_image: np.ndarray, k_size: int, sigma_color: f
             pivot_v = in_image[x, y]
             neighbor_hood = padded_image[x:x + k_size, y:y + k_size]
             diff = pivot_v - neighbor_hood
-            diff_gau = np.exp(-np.power(diff, 2) / (2 * sigma_color))
-            gaus = cv2.getGaussianKernel(k_size, k_size)
+            diff_intens = np.exp(- (diff**2) / (2 * (sigma_space**2)))
+            gaus = cv2.getGaussianKernel(k_size, sigma_color)
             gaus = gaus.dot(gaus.T)
-            combo = gaus * diff_gau
+
+            combo = gaus * diff_intens
             # bilateral formula
             result = (combo * neighbor_hood).sum() / combo.sum()
             res[x][y] = result
