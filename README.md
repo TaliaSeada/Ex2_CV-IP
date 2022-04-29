@@ -12,7 +12,7 @@ This exercise covers: </br>
 5. Bilateral filter. </br>
 
 <b> Main: </b> </br>
-![image](https://user-images.githubusercontent.com/78349342/165308203-249c8c25-9af0-4c30-b21c-b5d10e79d102.png)
+![image](https://user-images.githubusercontent.com/78349342/165906965-ef09d0a1-e777-4be1-8927-65e7049324b9.png)
 
 
 ### Implementing convolution on 1D and 2D arrays:
