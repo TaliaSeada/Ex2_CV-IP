@@ -219,6 +219,7 @@ def houghCircle(img: np.ndarray, min_radius: float, max_radius: float) -> list:
     circles = []
     # threshold for the circles detection
     threshold = 20
+    print("Best threshold found: ", threshold)
     for r in range(0, len(radius), jump):
         # function to find the circles in hough space
         voting = create(img, rows, cols, radius, r)
